@@ -1,0 +1,12 @@
+{
+  "name": "OpenSRTJS",
+  "version": "0.0.0",
+  "homepage": "https://github.com/SlashmanX/OpenSRTJS",
+  "authors": [
+    "SlashmanX"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "jquery-xmlrpc": "~0.4.3"
+  }
+}

@@ -4,7 +4,30 @@ var _ = require('lodash');
 
 var USER_AGENT;
 
-var client = xmlrpc.createClient({ host: 'api.opensubtitles.org', port: 80, path: '/xml-rpc'})
+var clientOptions = { host: 'api.opensubtitles.org', port: 80, path: '/xml-rpc'};
+
+var client = xmlrpc.createClient(clientOptions);
+
+if (true) {
+	var $ = jQuery = require('./bower_components/jquery/jquery.min.js');
+  require('./bower_components/jquery-xmlrpc/jquery.xmlrpc.min.js');
+
+	client = {
+		methodCall: function(method, params, cb) {
+	    $.xmlrpc({
+	      url: 'http://' + clientOptions.host + clientOptions.path,
+	      methodName: method,
+	      params: params,
+	      success: function(response, status, jqXHR) {
+	        cb(null, response[0]);
+	      },
+	      error: function(jqXHR, status, error) {
+	        cb(error);
+	      }
+	    });
+	  }
+	};
+}
 
 var token = "";
 
