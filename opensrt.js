@@ -1,5 +1,6 @@
 var xmlrpc = require("xmlrpc");
 var async = require("async");
+var _ = require('lodash');
 
 var USER_AGENT;
 
@@ -62,11 +63,11 @@ function searchEpisode(data, cb) {
 		opts.tag = data.filename;
 	}
 	client.methodCall('SearchSubtitles', [
-		data.token, 
+		data.token,
 		[
 			opts
 		]
-	], 
+	],
 	function(err, res){
 		if(err  || typeof res.data === 'undefined') return cb(err, null);
 		if(res.status === '414 Unknown User Agent') {
@@ -76,7 +77,7 @@ function searchEpisode(data, cb) {
 		var subs = {};
 		async.eachSeries(res.data, function(sub, callback) {
 			if(sub.SubFormat != "srt")  return callback();
-			if(data.season && data.episode) {// definitely an episode check 
+			if(data.season && data.episode) {// definitely an episode check
 				if(parseInt(sub.SeriesIMDBParent, 10) != parseInt(data.imdbid.replace("tt", ""), 10)) return callback();
 				if(sub.SeriesSeason != data.season) return callback();
 				if(sub.SeriesEpisode != data.episode) return callback();
@@ -84,20 +85,17 @@ function searchEpisode(data, cb) {
 			var tmp = {};
 			tmp.url = sub.SubDownloadLink.replace(".gz", ".srt");
 			tmp.lang = sub.ISO639;
-			tmp.downloads = sub.SubDownloadsCnt;
+			tmp.downloads = parseInt(sub.SubDownloadsCnt);
 			tmp.score = 0;
 
 			if(sub.MatchedBy == "moviehash") tmp.score += 100;
 			if(sub.MatchedBy == "tag") tmp.score += 50;
 			if(sub.UserRank == "trusted") tmp.score += 100;
+
 			if(!subs[tmp.lang]) {
-				subs[tmp.lang] = tmp;
-			}
-			else {
-				// If score is 0 or equal, sort by downloads
-				if(tmp.score > subs[tmp.lang].score || (tmp.score == subs[tmp.lang].score && tmp.downloads > subs[tmp.lang].score.downloads)) { 
-					subs[tmp.lang] = tmp;
-				}
+				subs[tmp.lang] = [tmp];
+			} else {
+				subs[tmp.lang].push(tmp);
 			}
 			return callback();
 		},
@@ -105,14 +103,27 @@ function searchEpisode(data, cb) {
 			// Do 1 extra query by imdb / season / episode in case no tag match for a lang
 			if(!data.recheck && data.imdbid && data.season && data.episode) {
 				return searchEpisode({
-					imdbid: data.imdbid.replace("tt", ""), 
-					season: data.season, 
+					imdbid: data.imdbid.replace("tt", ""),
+					season: data.season,
 					episode: data.episode,
 					recheck: true,
 					token: data.token
 				}, cb);
 			}
 			else {
+				// If score is 0 or equal, sort by downloads
+				for (var lang in subs) {
+					if (subs.hasOwnProperty(lang)) {
+						subs[lang].sort(function(s1, s2) {
+							if(s1.score > s2.score || (s1.score == s2.score && s1.downloads > s2.downloads)) {
+								return -1;
+							} else {
+								return 1;
+							}
+						});
+					}
+				}
+
 				return cb(err, subs);
 			}
 		})
