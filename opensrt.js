@@ -113,6 +113,8 @@ function searchEpisode(data, cb) {
 			tmp.downloads = parseInt(sub.SubDownloadsCnt);
 			tmp.score = 0;
 
+			console.log(sub);
+
 			if(sub.MatchedBy == "moviehash") tmp.score += 100;
 			if(sub.MatchedBy == "tag") tmp.score += 50;
 			if(sub.UserRank == "trusted") tmp.score += 100;
