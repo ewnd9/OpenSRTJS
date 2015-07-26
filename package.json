@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "async": "*",
+    "detect-node": "^2.0.3",
     "lodash": "^3.10.0",
     "xmlrpc": "latest"
   }

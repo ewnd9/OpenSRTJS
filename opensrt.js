@@ -1,5 +1,7 @@
 var xmlrpc = require("xmlrpc");
 var async = require("async");
+var isNode = require('detect-node');
+
 var _ = require('lodash');
 
 var USER_AGENT;
@@ -8,7 +10,7 @@ var clientOptions = { host: 'api.opensubtitles.org', port: 80, path: '/xml-rpc'}
 
 var client = xmlrpc.createClient(clientOptions);
 
-if (true) {
+if (!isNode) {
 	var $ = jQuery = require('./bower_components/jquery/jquery.min.js');
   require('./bower_components/jquery-xmlrpc/jquery.xmlrpc.min.js');
 
