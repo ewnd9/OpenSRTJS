@@ -112,8 +112,10 @@ function searchEpisode(data, cb) {
 			tmp.lang = sub.ISO639;
 			tmp.downloads = parseInt(sub.SubDownloadsCnt);
 			tmp.score = 0;
-
-			console.log(sub);
+			tmp.subFilename = sub.SubFileName.trim();
+			tmp.releaseFilename = sub.MovieReleaseName.trim();
+			tmp.date = sub.SubAddDate;
+			tmp.encoding = sub.SubEncoding;
 
 			if(sub.MatchedBy == "moviehash") tmp.score += 100;
 			if(sub.MatchedBy == "tag") tmp.score += 50;
